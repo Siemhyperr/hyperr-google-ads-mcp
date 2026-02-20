@@ -3,6 +3,6 @@ builder = "nixpacks"
 
 [deploy]
 startCommand = "uv run main.py --groups all"
-healthcheckPath = "/"
+healthcheckPath = "/sse/"
 healthcheckTimeout = 30
 restartPolicyType = "on_failure"
