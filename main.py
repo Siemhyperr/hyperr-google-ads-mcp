@@ -462,8 +462,15 @@ async def run_with_shutdown():
     logger.info(
         f"Registered tools: {len(tools)} tools from {len(servers_to_mount)} servers"
     )
-    # Create a task for the server
-    server_task = asyncio.create_task(mcp.run_async(transport="stdio"))
+    # Transport: stdio (lokaal) of sse (Railway/gehoste server)
+    import os as _os
+    transport = _os.environ.get("MCP_TRANSPORT", "stdio")
+    if transport == "sse":
+        port = int(_os.environ.get("PORT", 8000))
+        logger.info(f"Starting SSE server on port {port}")
+        server_task = asyncio.create_task(mcp.run_async(transport="sse", host="0.0.0.0", port=port))
+    else:
+        server_task = asyncio.create_task(mcp.run_async(transport="stdio"))
 
     # Wait for either the server to complete or shutdown signal
     shutdown_task = asyncio.create_task(shutdown_event.wait())
