@@ -94,6 +94,10 @@ class CampaignService:
             campaign.experiment_type = (
                 CampaignExperimentTypeEnum.CampaignExperimentType.BASE
             )
+
+            # EU political advertising compliance (required for EU accounts)
+            # Enum: 0=UNSPECIFIED, 1=UNKNOWN, 2=CONTAINS, 3=DOES_NOT_CONTAIN
+            campaign.contains_eu_political_advertising = 3
             # Set manual CPC bidding strategy
             manual_cpc: ManualCpc = ManualCpc()
             campaign.manual_cpc = manual_cpc
