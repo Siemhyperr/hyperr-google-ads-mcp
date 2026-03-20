@@ -304,7 +304,8 @@ class CampaignAssetService:
         try:
             customer_id = format_customer_id(customer_id)
             # Campaign asset resource names use ~ as separator
-            campaign_asset_resource = f"customers/{customer_id}/campaignAssets/{campaign_id}~{asset_id}~{field_type}"
+            field_type_name = field_type.name if hasattr(field_type, 'name') else str(field_type)
+            campaign_asset_resource = f"customers/{customer_id}/campaignAssets/{campaign_id}~{asset_id}~{field_type_name}"
 
             # Create operation
             operation = CampaignAssetOperation()
