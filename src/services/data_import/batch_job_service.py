@@ -183,18 +183,53 @@ class BatchJobService:
             # In practice, you'd need to construct proper MutateOperation objects
             # based on the specific operation types (campaign, ad group, keyword, etc.)
 
+            sdk_client = get_sdk_client()
+
             operations = []
-            for _ in operations_data:
-                # This is a placeholder - actual implementation would require
-                # parsing the operation data and creating appropriate MutateOperation objects
+            for op_data in operations_data:
                 operation = MutateOperation()
-                # You would set the appropriate operation based on op_data['type']
-                # For example:
-                # if op_data.get('type') == 'campaign':
-                #     operation.campaign_operation = ...
-                # elif op_data.get('type') == 'ad_group':
-                #     operation.ad_group_operation = ...
-                # etc.
+
+                if "ad_group_operation" in op_data:
+                    ag_op_data = op_data["ad_group_operation"]
+                    ag_operation = sdk_client.client.get_type("AdGroupOperation")
+                    if "remove" in ag_op_data:
+                        ag_operation.remove = ag_op_data["remove"]
+                    elif "create" in ag_op_data:
+                        create_data = ag_op_data["create"]
+                        ag = ag_operation.create
+                        if "name" in create_data:
+                            ag.name = create_data["name"]
+                        if "campaign" in create_data:
+                            ag.campaign = create_data["campaign"]
+                        if "status" in create_data:
+                            status_enum = sdk_client.client.enums.AdGroupStatusEnum.AdGroupStatus
+                            ag.status = getattr(status_enum, create_data["status"])
+                    operation.ad_group_operation = ag_operation
+
+                elif "campaign_operation" in op_data:
+                    camp_op_data = op_data["campaign_operation"]
+                    camp_operation = sdk_client.client.get_type("CampaignOperation")
+                    if "remove" in camp_op_data:
+                        camp_operation.remove = camp_op_data["remove"]
+                    operation.campaign_operation = camp_operation
+
+                elif "ad_group_ad_operation" in op_data:
+                    ad_op_data = op_data["ad_group_ad_operation"]
+                    ad_operation = sdk_client.client.get_type("AdGroupAdOperation")
+                    if "remove" in ad_op_data:
+                        ad_operation.remove = ad_op_data["remove"]
+                    operation.ad_group_ad_operation = ad_operation
+
+                elif "ad_group_criterion_operation" in op_data:
+                    crit_op_data = op_data["ad_group_criterion_operation"]
+                    crit_operation = sdk_client.client.get_type("AdGroupCriterionOperation")
+                    if "remove" in crit_op_data:
+                        crit_operation.remove = crit_op_data["remove"]
+                    operation.ad_group_criterion_operation = crit_operation
+
+                else:
+                    raise ValueError(f"Unsupported operation type in: {op_data}")
+
                 operations.append(operation)
 
             # Create request
